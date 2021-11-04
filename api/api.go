@@ -34,19 +34,30 @@ func ERROR(w http.ResponseWriter, statusCode int, err error) {
 }
 
 // Read - Reads request body and parses JSON to struct
-func Read(w http.ResponseWriter, r *http.Request) interface{} {
+func Read(w http.ResponseWriter, r *http.Request) []byte {
 	// Read request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		ERROR(w, http.StatusUnprocessableEntity, err)
 		return nil
 	}
-	var i interface{}
-	// Parse JSON
-	err = json.Unmarshal(body, &i)
-	if err != nil {
-		ERROR(w, http.StatusUnprocessableEntity, err)
-		return nil
-	}
-	return i
+	return body
 }
+
+// // Read - Reads request body and parses JSON to struct
+// func Read(w http.ResponseWriter, r *http.Request) interface{} {
+// 	// Read request body
+// 	body, err := ioutil.ReadAll(r.Body)
+// 	if err != nil {
+// 		ERROR(w, http.StatusUnprocessableEntity, err)
+// 		return nil
+// 	}
+// 	var i interface{}
+// 	// Parse JSON
+// 	err = json.Unmarshal(body, &i)
+// 	if err != nil {
+// 		ERROR(w, http.StatusUnprocessableEntity, err)
+// 		return nil
+// 	}
+// 	return i
+// }

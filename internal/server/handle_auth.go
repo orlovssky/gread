@@ -1,4 +1,4 @@
-package controllers
+package server
 
 import (
 	"encoding/json"
@@ -6,18 +6,17 @@ import (
 	"net/http"
 
 	"github.com/orlovssky/gread/api"
-	"github.com/orlovssky/gread/internal/services"
 )
 
 // Credentials - Holds login credentials
 type Credentials struct {
-	Login    string `json:"login" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 
 // handleAuthLogin - This function checks the users email and password
 // match. If they matcn an oauth token is returned
-func Login(w http.ResponseWriter, r *http.Request) {
+func (s *server) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
 	// Read the request
 	var credentials Credentials
 	err := json.NewDecoder(r.Body).Decode(&credentials)
@@ -26,7 +25,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Check the password and get the token
-	token, err := services.AuthServiceInstance.Login(credentials.Login, credentials.Password)
+	token, err := s.services.AuthService.Login(credentials.Email, credentials.Password)
 	if err != nil {
 		api.ERROR(w, http.StatusUnauthorized, err)
 		return

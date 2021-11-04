@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -20,9 +19,11 @@ var AuthStoreInstance AuthStoreInterface = &AuthStore{}
 // Login - Returns user of provided email
 func (a *AuthStore) Login(user User) (User, error) {
 	u := User{}
-	if err := DB.Table("users").Where("email = ?", user.Email).Take(&u).Error; err != nil {
-		fmt.Println(err)
-		return u, errors.New("user does not exist")
+	if err := a.DB.Table("users").Where("email = ?", user.Email).Take(&u).Error; err != nil {
+		if err.Error() == "record not found" {
+			return u, errors.New("user does not exist")
+		}
+		return u, err
 	}
 	return u, nil
 }

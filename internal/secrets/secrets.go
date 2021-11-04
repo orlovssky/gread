@@ -15,7 +15,11 @@ type Secrets struct {
 	JWTSecret  string `json:"jwt_secret"`
 }
 
-// LoadSecrets - load secrets from secrets.json file
+var LoadedSecrets Secrets
+
+// LoadSecrets - first attempts to load secrets from secrets.json file
+// if no secrets.json file is found, will attempt to load from aws
+// secrets manager
 func LoadSecrets() (Secrets, error) {
 	secrets := Secrets{}
 	configJSON, err := ioutil.ReadFile("configs/secrets.json")
@@ -26,5 +30,6 @@ func LoadSecrets() (Secrets, error) {
 	if err != nil {
 		return secrets, err
 	}
+	LoadedSecrets = secrets
 	return secrets, nil
 }

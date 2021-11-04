@@ -5,33 +5,24 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	// "strconv"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/orlovssky/gread/internal/secrets"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type customClaims struct {
-	UserID int  `json:"user_id"`
-	Admin  bool `json:"admin"`
-	jwt.StandardClaims
-}
 
 // CreateToken - Creates abd returns a new JTW token for the
 // given userID. Token expires after 1 hour
 func CreateToken(userID int, apiSecret string) (string, error) {
 	// Create the Claims
-	claims := customClaims{
-		userID,
-		true,
-		jwt.StandardClaims{
-			Id:        strconv.FormatInt(time.Now().Unix()+int64(userID), 10),
-			Issuer:    "http://localhost.com:5000",
-			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-		},
-	}
+	claims := jwt.MapClaims{}
+	claims["authorized"] = true
+	claims["id"] = userID
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() //Token expires after 1 hour
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(apiSecret))
@@ -45,34 +36,53 @@ func CreateToken(userID int, apiSecret string) (string, error) {
 
 // TokenValid - Checks if the token passed in the request is
 // valid. If not valid an error will reee returned
-func TokenValid(r *http.Request, apiSecret string) error {
+func TokenValid(r *http.Request) (int, error) {
 	tokenString := extractToken(r)
+	if tokenString == "" {
+		return 0, errors.New("invliad token")
+	}
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(apiSecret), nil
+		return []byte(secrets.LoadedSecrets.JWTSecret), nil
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if !token.Valid {
-		return errors.New("invliad token")
+		return 0, errors.New("invliad token")
 	}
-	return nil
+	id, err := extractID(token)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+// extractID - Gets the id from claims
+func extractID(token *jwt.Token) (int, error) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		id, err := strconv.Atoi(fmt.Sprintf("%.f", claims["id"]))
+		if err != nil {
+			return 0, errors.New("cannot parse id from claims")
+		} else {
+			return id, nil
+		}
+	}
+	return 0, errors.New("cannot extract id")
 }
 
 // extractToken - Gets a token from the req header
 func extractToken(r *http.Request) string {
-	keys := r.URL.Query()
-	token := keys.Get("token")
-	if token != "" {
-		return token
+	bearToken := r.Header.Get("Authorization")
+
+	strArr := strings.Split(strings.TrimSpace(bearToken), " ")
+	if len(strArr) == 2 {
+		return strArr[1]
 	}
-	bearerToken := r.Header.Get("Authorization")
-	if len(strings.Split(bearerToken, " ")) == 2 {
-		return strings.Split(bearerToken, " ")[1]
-	}
+
 	return ""
 }
 

@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/orlovssky/gread/internal/secrets"
 	migrate "github.com/rubenv/sql-migrate"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
-
 // NewDatabase - Create a new database conection. Schema will be migrated if
 // not found
-func NewDatabase(s secrets.Secrets) *gorm.DB {
+func NewDatabase(host, username, password, database, port string) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		s.DBHost, s.DBUser, s.DBPass, s.DBDatabase, s.DBPort)
+		host, username, password, database, port)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
