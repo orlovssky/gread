@@ -1,10 +1,8 @@
 package main
 
-import (
-	"github.com/orlovssky/gread/internal/server"
-)
+import "github.com/orlovssky/gread/internal/server"
 
 func main() {
-	server := server.NewServer()
-	server.StartServer()
+	s := server.NewServer()
+	s.StartServer()
 }

@@ -5,68 +5,38 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/micro/go-micro/util/log"
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
-
 	"github.com/orlovssky/gread/internal/logger"
+	"github.com/orlovssky/gread/internal/routes"
+	"github.com/sirupsen/logrus"
+
 	"github.com/orlovssky/gread/internal/secrets"
-	"github.com/orlovssky/gread/internal/services"
 	"github.com/orlovssky/gread/internal/store"
 )
 
 // Server type
 type server struct {
-	r        chi.Router
-	log      *logrus.Logger
-	db       *gorm.DB
-	secrets  secrets.Secrets
-	services *Services
-	stores   *Stores
-}
-
-// Services - These are injected into the server
-// and can be called by the handlers
-type Services struct {
-	AuthService services.AuthServiceInterface
-	UserService services.UserServiceInterface
-}
-
-// Stores - These are injected into the server
-// and can be called by the handlers
-type Stores struct {
-	AuthStore store.AuthStoreInterface
-	UserStore store.UserStoreInterface
+	r   chi.Router
+	log *logrus.Logger
 }
 
 // NewServer - Create Server
 func NewServer() server {
 	// Create a new server
 	s := server{}
+
 	// Inject logger
 	s.log = logger.NewLogger()
-	// Inject secrets
+
+	// Load secrets
 	var err error
-	s.secrets, err = secrets.LoadSecrets()
+	_, err = secrets.LoadSecrets()
 	if err != nil {
 		s.log.Error("error:", err)
 	}
 
-	// Inject database
-	s.db = store.NewDatabase(s.secrets.DBHost, s.secrets.DBUser, s.secrets.DBPass, s.secrets.DBDatabase, s.secrets.DBPort)
-	// Inject stores
-	store.UserStoreInstance = &store.UserStore{DB: s.db}
-	store.AuthStoreInstance = &store.AuthStore{DB: s.db}
-	s.stores = &Stores{
-		UserStore: store.UserStoreInstance,
-		AuthStore: store.AuthStoreInstance,
-	}
-	// Inject services
-	services.UserServiceInstance = &services.UserService{UserStore: s.stores.UserStore}
-	services.AuthServiceInstance = &services.AuthService{DB: s.db, JWTSecret: s.secrets.JWTSecret, UserService: services.UserServiceInstance, AuthStore: s.stores.AuthStore}
-	s.services = &Services{
-		AuthService: services.AuthServiceInstance,
-		UserService: services.UserServiceInstance,
-	}
+	// Connect to DB
+	store.ConnectToDB()
+
 	return s
 }
 
@@ -74,7 +44,7 @@ func NewServer() server {
 // starts HTTP server
 func (s *server) StartServer() {
 	log.Info("📡 Server Started. API Server is now listening on http://localhost:8080")
-	s.routes()
+	s.r = routes.Routes()
 	log.Fatal(http.ListenAndServe(":8080", s.r))
 }
 

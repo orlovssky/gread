@@ -3,12 +3,10 @@ module github.com/orlovssky/gread
 go 1.17
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/go-chi/cors v1.2.0 // indirect
 	github.com/go-log/log v0.1.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -19,8 +17,6 @@ require (
 	github.com/jackc/pgx/v4 v4.13.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
-	github.com/jmoiron/sqlx v1.3.4 // indirect
-	github.com/lib/pq v1.10.3 // indirect
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/rubenv/sql-migrate v0.0.0-20211023115951-9f02b1e13857 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
@@ -30,4 +26,5 @@ require (
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	gorm.io/driver/postgres v1.2.1 // indirect
 	gorm.io/gorm v1.22.0 // indirect
+	gorm.io/plugin/soft_delete v1.0.4 // indirect
 )

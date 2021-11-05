@@ -1,30 +1,19 @@
 package services
 
 import (
+	"github.com/orlovssky/gread/internal/secrets"
 	"github.com/orlovssky/gread/internal/store"
 	"github.com/orlovssky/gread/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
-type AuthService struct {
-	DB          *gorm.DB
-	JWTSecret   string
-	UserService UserServiceInterface
-	AuthStore   store.AuthStoreInterface
-}
+type AuthService struct{}
 
-type AuthServiceInterface interface {
-	Login(email, password string) (string, error)
-}
+var authStore store.AuthStore
 
-var AuthServiceInstance AuthServiceInterface = &AuthService{}
-
-// Login - Here we checek the user email exists and the passwords match.
-// Finally an auth token is created and returned
-func (s *AuthService) Login(email, password string) (string, error) {
+func (s *AuthService) SignIn(email, password string) (string, error) {
 	// Check user with that email exists
-	user, err := s.AuthStore.Login(store.User{Email: email})
+	user, err := authStore.SignIn(store.User{Email: email})
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +25,7 @@ func (s *AuthService) Login(email, password string) (string, error) {
 	}
 
 	// Get auth token
-	token, err := auth.CreateToken(user.ID, s.JWTSecret)
+	token, err := auth.CreateToken(user.ID, secrets.LoadedSecrets.JWTSecret)
 	if err != nil {
 		return "", err
 	}

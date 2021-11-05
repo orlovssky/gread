@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	"net/http"
@@ -8,17 +8,18 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/orlovssky/gread/api"
+	"github.com/orlovssky/gread/internal/handlers"
 	mw "github.com/orlovssky/gread/internal/middleware"
 )
 
-// routes - Setups chi router, middlewares and defines all api endpoints
-func (s *server) routes() {
+// Routes - Setups chi router, middlewares and defines all api endpoints
+func Routes() chi.Router {
 	// Inject routes
-	s.r = chi.NewRouter()
+	r := chi.NewRouter()
 
 	// Basic CORS
 	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
-	s.r.Use(cors.Handler(cors.Options{
+	r.Use(cors.Handler(cors.Options{
 		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
 		AllowedOrigins: []string{"https://*", "http://*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
@@ -32,23 +33,23 @@ func (s *server) routes() {
 	// Inject chi middleware
 	// A good base middleware stack
 	// Injects a request ID into the context of each request
-	s.r.Use(middleware.RequestID)
+	r.Use(middleware.RequestID)
 	// Sets a http.Request's RemoteAddr to either X-Real-IP or X-Forwarded-For
-	s.r.Use(middleware.RealIP)
+	r.Use(middleware.RealIP)
 	// Logs the start and end of each request with the elapsed processing time
-	s.r.Use(middleware.Logger)
+	r.Use(middleware.Logger)
 	// Gracefully absorb panics and prints the stack trace
-	s.r.Use(middleware.Recoverer)
+	r.Use(middleware.Recoverer)
 	// Sets HTTP response headers as content type JSON
-	s.r.Use(middleware.SetHeader("Content-Type", "application/json"))
+	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
-	s.r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Timeout(60 * time.Second))
 
 	// setup v1 subrouter
-	s.r.Route("/v1", func(r chi.Router) {
+	r.Route("/v1", func(r chi.Router) {
 
 		// health
 		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -57,18 +58,19 @@ func (s *server) routes() {
 
 		// auth
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/signin", s.handleAuthLogin) // POST /users
-			r.Post("/signup", s.handleUserCreate)
+			r.Post("/signin", handlers.HandleAuthSignIn) // POST /users
+			r.Post("/signup", handlers.HandleUserCreate) // POST /users
 		})
 
 		// user
 		r.Route("/user", func(r chi.Router) {
 			r.Use(mw.Auth)
 
-			r.Get("/", s.handleUserGet)
-			r.Put("/{id}", s.handleUserUpdate)
-			r.Delete("/{id}", s.handleUserDelete)
+			r.Get("/", handlers.HandleUserGet)
+			// r.Put("/{id}", handlers.HandleUserUpdate)
+			r.Delete("/{id}", handlers.HandleUserDelete)
 		})
-
 	})
+
+	return r
 }

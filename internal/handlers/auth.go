@@ -1,4 +1,4 @@
-package server
+package handlers
 
 import (
 	"encoding/json"
@@ -6,7 +6,10 @@ import (
 	"net/http"
 
 	"github.com/orlovssky/gread/api"
+	"github.com/orlovssky/gread/internal/services"
 )
+
+var authService services.AuthService
 
 // Credentials - Holds login credentials
 type Credentials struct {
@@ -14,9 +17,7 @@ type Credentials struct {
 	Password string `json:"password" validate:"required"`
 }
 
-// handleAuthLogin - This function checks the users email and password
-// match. If they matcn an oauth token is returned
-func (s *server) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
+func HandleAuthSignIn(w http.ResponseWriter, r *http.Request) {
 	// Read the request
 	var credentials Credentials
 	err := json.NewDecoder(r.Body).Decode(&credentials)
@@ -24,8 +25,9 @@ func (s *server) handleAuthLogin(w http.ResponseWriter, r *http.Request) {
 		api.ERROR(w, http.StatusUnprocessableEntity, errors.New("could not decode JSON body"))
 		return
 	}
+
 	// Check the password and get the token
-	token, err := s.services.AuthService.Login(credentials.Email, credentials.Password)
+	token, err := authService.SignIn(credentials.Email, credentials.Password)
 	if err != nil {
 		api.ERROR(w, http.StatusUnauthorized, err)
 		return

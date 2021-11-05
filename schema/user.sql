@@ -5,7 +5,7 @@ CREATE TABLE users
 		id         SERIAL        NOT NULL,
     created_at BIGINT        NOT NULL,
     updated_at BIGINT        NOT NULL,
-    deleted_at TIME,
+    deleted    SMALLINT      NOT NULL,
     username   VARCHAR(255),
     email      VARCHAR(255)  NOT NULL,
     password   VARCHAR(255)  NOT NULL,

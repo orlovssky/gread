@@ -1,10 +1,6 @@
 package store
 
-import (
-	"errors"
-
-	"gorm.io/gorm"
-)
+import "errors"
 
 // User - An app user
 type User struct {
@@ -16,32 +12,20 @@ type User struct {
 	Lastname  string `json:"lastname" gorm:"type:varchar(255);default:null;"`
 }
 
-type UserStore struct {
-	DB *gorm.DB
-}
-
-type UserStoreInterface interface {
-	Create(user User) (User, error)
-	Get(user User) (User, error)
-	GetById(userId int) (User, error)
-	Update(user User) (User, error)
-	Delete(user User) error
-}
-
-var UserStoreInstance UserStoreInterface = &UserStore{}
+type UserStore struct{}
 
 // Create - Creates a user
-func (s *UserStore) Create(user User) (User, error) {
-	if err := s.DB.Create(&user).Error; err != nil {
+func (s UserStore) Create(user User) (User, error) {
+	if err := DB.Create(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
 // Get - Gets a user
-func (s *UserStore) Get(user User) (User, error) {
+func (s UserStore) Get(user User) (User, error) {
 	u := User{}
-	if err := s.DB.Table("users").Where("username=?", user.Username).Or("email = ?", user.Email).Take(&u).Error; err != nil {
+	if err := DB.Table("users").Where("username=?", user.Username).Or("email = ?", user.Email).Take(&u).Error; err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return u, errors.New("user does not exist")
 		}
@@ -51,9 +35,9 @@ func (s *UserStore) Get(user User) (User, error) {
 }
 
 // Get - Gets a user by id
-func (s *UserStore) GetById(userId int) (User, error) {
+func (s UserStore) GetById(userId int) (User, error) {
 	u := User{}
-	if err := s.DB.Table("users").Where("id=?", userId).Take(&u).Error; err != nil {
+	if err := DB.Table("users").Where("id=?", userId).Take(&u).Error; err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return u, errors.New("user does not exist")
 		}
@@ -63,16 +47,16 @@ func (s *UserStore) GetById(userId int) (User, error) {
 }
 
 // Update - Updates a user
-func (s *UserStore) Update(user User) (User, error) {
-	if err := s.DB.Save(&user).Error; err != nil {
+func (s UserStore) Update(user User) (User, error) {
+	if err := DB.Save(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
 // Delete - Deletes a user
-func (s *UserStore) Delete(user User) error {
-	if err := s.DB.Delete(&user).Error; err != nil {
+func (s UserStore) Delete(user User) error {
+	if err := DB.Delete(&user).Error; err != nil {
 		return err
 	}
 	return nil
