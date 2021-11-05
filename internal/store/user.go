@@ -23,6 +23,7 @@ type UserStore struct {
 type UserStoreInterface interface {
 	Create(user User) (User, error)
 	Get(user User) (User, error)
+	GetById(userId int) (User, error)
 	Update(user User) (User, error)
 	Delete(user User) error
 }
@@ -41,6 +42,18 @@ func (s *UserStore) Create(user User) (User, error) {
 func (s *UserStore) Get(user User) (User, error) {
 	u := User{}
 	if err := s.DB.Table("users").Where("username=?", user.Username).Or("email = ?", user.Email).Take(&u).Error; err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return u, errors.New("user does not exist")
+		}
+		return u, err
+	}
+	return u, nil
+}
+
+// Get - Gets a user by id
+func (s *UserStore) GetById(userId int) (User, error) {
+	u := User{}
+	if err := s.DB.Table("users").Where("id=?", userId).Take(&u).Error; err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return u, errors.New("user does not exist")
 		}

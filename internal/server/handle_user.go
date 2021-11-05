@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -67,24 +66,11 @@ func (s *server) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
 		return
 	}
-	var user store.User
+
 	body := api.Read(w, r)
-	// Read the request
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		api.ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-	// Set userID that we want to update
-	user.ID = userID
-	fmt.Println(user)
-	// // Read the request
-	// user := api.Read(w, r).(store.User)
-	// // Set userID that we want to update
-	// user.ID = userID
 
 	// Update user
-	user, err = s.services.UserService.Update(user)
+	user, err := s.services.UserService.Update(body, userID)
 	if err != nil {
 		api.ERROR(w, http.StatusInternalServerError, err)
 		return
