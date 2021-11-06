@@ -67,7 +67,8 @@ func Routes() chi.Router {
 			r.Use(mw.Auth)
 
 			r.Get("/", handlers.HandleUserGet)
-			// r.Put("/{id}", handlers.HandleUserUpdate)
+			r.Put("/{id}", handlers.HandleUserUpdate)
+			r.Put("/password/{id}", handlers.HandleUserPasswordUpdate)
 			r.Delete("/{id}", handlers.HandleUserDelete)
 		})
 	})

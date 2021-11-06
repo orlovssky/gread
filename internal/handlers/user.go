@@ -61,49 +61,79 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleUserUpdate - Updates a user
-// func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
-// 	// Parse path var
-// 	userID, err := strconv.Atoi(chi.URLParam(r, "id"))
-// 	if err != nil {
-// 		api.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-
-// 	id := r.Context().Value("id").(int)
-// 	if id != userID {
-// 		api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
-// 		return
-// 	}
-
-// 	body := api.Read(w, r)
-
-// 	// Update user
-// 	user, err := userService.Update(body, userID)
-// 	if err != nil {
-// 		api.ERROR(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-
-// 	api.JSON(w, http.StatusCreated, user)
-// }
-
-// HandleUserDelete - Deletes a user
-func HandleUserDelete(w http.ResponseWriter, r *http.Request) {
+func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	// Parse path var
-	userID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	userId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		api.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
 	id := r.Context().Value("id").(int)
-	if id != userID {
+	if id != userId {
+		api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
+		return
+	}
+
+	body := api.Read(w, r)
+
+	// Update user
+	err = userService.Update(body, userId)
+	if err != nil {
+		api.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	api.JSON(w, http.StatusOK, "success")
+}
+
+// HandleUserPasswordUpdate - Updates a user's password
+func HandleUserPasswordUpdate(w http.ResponseWriter, r *http.Request) {
+	// Parse path var
+	userId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		api.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	id := r.Context().Value("id").(int)
+	if id != userId {
+		api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
+		return
+	}
+
+	body := api.Read(w, r)
+	if body == nil {
+		return
+	}
+
+	// Update user
+	err = userService.UpdatePassword(body, userId)
+	if err != nil {
+		api.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	api.JSON(w, http.StatusOK, "success")
+}
+
+// HandleUserDelete - Deletes a user
+func HandleUserDelete(w http.ResponseWriter, r *http.Request) {
+	// Parse path var
+	userId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		api.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	id := r.Context().Value("id").(int)
+	if id != userId {
 		api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
 		return
 	}
 
 	var user store.User
-	user.ID = userID
+	user.ID = userId
 
 	// Delete user
 	err = userService.Delete(user)
