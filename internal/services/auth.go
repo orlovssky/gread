@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/orlovssky/gread/internal/secrets"
 	"github.com/orlovssky/gread/internal/store"
 	"github.com/orlovssky/gread/pkg/auth"
@@ -21,7 +23,7 @@ func (s *AuthService) SignIn(email, password string) (string, error) {
 	// Verify the password is valid
 	err = auth.VerifyPassword(user.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return "", err
+		return "", errors.New("invalid password")
 	}
 
 	// Get auth token

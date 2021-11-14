@@ -59,7 +59,7 @@ func Routes() chi.Router {
 		// auth
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/signin", handlers.HandleAuthSignIn) // POST /users
-			r.Post("/signup", handlers.HandleUserCreate) // POST /users
+			r.Post("/signup", handlers.HandleAuthSignUp) // POST /users
 		})
 
 		// user
