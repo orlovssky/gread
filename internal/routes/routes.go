@@ -77,6 +77,7 @@ func Routes() chi.Router {
 
 			r.Post("/", handlers.HandleLinkPost)
 			r.Get("/", handlers.HandleLinksGet)
+			r.Get("/{id}", handlers.HandleLinkGet)
 			r.Delete("/{id}", handlers.HandleLinkDelete)
 		})
 	})

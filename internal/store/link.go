@@ -17,6 +17,7 @@ type Link struct {
 	SiteName    string `json:"site_name" gorm:"type:varchar(255);"`
 	Image       string `json:"image" gorm:"type:text;"`
 	Favicon     string `json:"favicon" gorm:"type:text;"`
+	Url         string `json:"url" gorm:"type:text;"`
 }
 type LinkToParse struct {
 	Link string `json:"link"`

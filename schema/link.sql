@@ -16,6 +16,7 @@ CREATE TABLE links
     site_name    VARCHAR(255),
     image        TEXT,
     favicon      TEXT,
+    url          TEXT,
     CONSTRAINT links_pkey PRIMARY KEY (id)
     
     -- COMMENTED FOR SOFT DELETING

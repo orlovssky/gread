@@ -50,11 +50,30 @@ func HandleLinksGet(w http.ResponseWriter, r *http.Request) {
 	api.JSON(w, http.StatusOK, links)
 }
 
+// HandleLinkGet - Get a link
+func HandleLinkGet(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("id").(int)
+
+	linkId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		api.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	// Get link
+	link, err := linkService.Get(linkId, userId)
+	if err != nil {
+		api.ERROR(w, http.StatusConflict, err)
+		return
+	}
+
+	api.JSON(w, http.StatusOK, link)
+}
+
 // HandleLinkDelete - Delete link
 func HandleLinkDelete(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value("id").(int)
 
-	// Parse path var
 	linkId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		api.ERROR(w, http.StatusUnprocessableEntity, err)

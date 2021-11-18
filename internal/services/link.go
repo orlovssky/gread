@@ -13,20 +13,21 @@ type LinkService struct{}
 var linkStore store.LinkStore
 
 // Create - Create a user
-func (s LinkService) Create(link store.LinkToParse, userId int) (store.Link, error) {
-	pkgLink.Prepare(&link)
+func (s LinkService) Create(ltp store.LinkToParse, userId int) (store.Link, error) {
+	pkgLink.Prepare(&ltp)
 
-	if err := pkgLink.Validate(link); err != nil {
+	if err := pkgLink.Validate(ltp); err != nil {
 		return store.Link{}, err
 	}
 
-	parsedLink, err := readability.FromURL(link.Link, 30*time.Second)
+	parsedLink, err := readability.FromURL(ltp.Link, 30*time.Second)
 	if err != nil {
 		return store.Link{}, err
 	}
 
-	l := store.Link{
+	link := store.Link{
 		UserID:      userId,
+		Url:         ltp.Link,
 		Title:       parsedLink.Title,
 		Author:      parsedLink.Byline,
 		Content:     parsedLink.Content,
@@ -38,24 +39,34 @@ func (s LinkService) Create(link store.LinkToParse, userId int) (store.Link, err
 		Favicon:     parsedLink.Favicon,
 	}
 	// Store link
-	l, err = linkStore.Create(l)
+	link, err = linkStore.Create(link)
 	if err != nil {
-		return l, err
+		return link, err
 	}
 
-	return l, nil
+	return link, nil
+}
+
+// Delete - Delete a user
+func (s LinkService) Get(linkId int, userId int) (store.Link, error) {
+	link, err := linkStore.Get(linkId, userId)
+	if err != nil {
+		return store.Link{}, err
+	}
+
+	return link, nil
 }
 
 // GetList - get links
 func (s LinkService) GetList(userId int) ([]store.Link, error) {
-	var l []store.Link
+	var link []store.Link
 
-	l, err := linkStore.GetList(userId)
+	link, err := linkStore.GetList(userId)
 	if err != nil {
-		return l, err
+		return link, err
 	}
 
-	return l, nil
+	return link, nil
 }
 
 // Delete - Delete a user
