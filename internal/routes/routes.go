@@ -71,6 +71,14 @@ func Routes() chi.Router {
 			r.Put("/password/{id}", handlers.HandleUserPasswordUpdate)
 			r.Delete("/{id}", handlers.HandleUserDelete)
 		})
+		// user
+		r.Route("/link", func(r chi.Router) {
+			r.Use(mw.Auth)
+
+			r.Post("/", handlers.HandleLinkPost)
+			r.Get("/", handlers.HandleLinksGet)
+			r.Delete("/{id}", handlers.HandleLinkDelete)
+		})
 	})
 
 	return r

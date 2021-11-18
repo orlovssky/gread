@@ -26,7 +26,7 @@ func (s UserStore) Create(user User) (User, error) {
 func (s UserStore) Get(user User) (User, error) {
 	u := User{}
 	if err := DB.Table("users").Where("username=?", user.Username).Or("email = ?", user.Email).Take(&u).Error; err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == "record not found" {
 			return u, errors.New("user does not exist")
 		}
 		return u, err
@@ -38,7 +38,7 @@ func (s UserStore) Get(user User) (User, error) {
 func (s UserStore) GetById(userId int) (User, error) {
 	u := User{}
 	if err := DB.Table("users").Where("id=?", userId).Take(&u).Error; err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == "record not found" {
 			return u, errors.New("user does not exist")
 		}
 		return u, err

@@ -37,29 +37,6 @@ func HandleUserCreate(w http.ResponseWriter, r *http.Request) {
 
 // HandleUserGet - Get a user
 func HandleUserGet(w http.ResponseWriter, r *http.Request) {
-	// // Parse path var
-	// userId, err := strconv.Atoi(chi.URLParam(r, "id"))
-	// if err != nil {
-	// 	api.ERROR(w, http.StatusUnprocessableEntity, err)
-	// 	return
-	// }
-
-	// id := r.Context().Value("id").(int)
-	// if id != userId {
-	// 	api.ERROR(w, http.StatusForbidden, errors.New("you do not have access"))
-	// 	return
-	// }
-
-	// // Get user
-	// u, err := userService.GetById(userId)
-	// if err != nil {
-	// 	api.ERROR(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
-
-	// api.JSON(w, http.StatusOK, u)
-
-	// =============================
 	userId := r.Context().Value("id").(int)
 
 	// Get user
