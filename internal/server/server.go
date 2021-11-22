@@ -45,7 +45,7 @@ func NewServer() server {
 func (s *server) StartServer() {
 	log.Info("📡 Server Started. API Server is now listening on http://localhost:8080")
 	s.r = routes.Routes()
-	log.Fatal(http.ListenAndServe(":8080", s.r))
+	log.Fatal(http.ListenAndServe(":8081", s.r))
 }
 
 // ServeHTTP - Turns server into http server
