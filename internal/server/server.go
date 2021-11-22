@@ -43,7 +43,7 @@ func NewServer() server {
 // StartServer - Load routes into server and
 // starts HTTP server
 func (s *server) StartServer() {
-	log.Info("📡 Server Started. API Server is now listening on http://localhost:8080")
+	log.Info("📡 Server Started. API Server is now listening on http://localhost:8081")
 	s.r = routes.Routes()
 	log.Fatal(http.ListenAndServe(":8081", s.r))
 }
