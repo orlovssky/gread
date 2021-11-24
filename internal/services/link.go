@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	readability "github.com/go-shiori/go-readability"
@@ -23,6 +24,10 @@ func (s LinkService) Create(ltp store.LinkToParse, userId int) (store.Link, erro
 	parsedLink, err := readability.FromURL(ltp.Link, 30*time.Second)
 	if err != nil {
 		return store.Link{}, err
+	}
+
+	if parsedLink.Content == "" {
+		return store.Link{}, errors.New("cannot parse content from link")
 	}
 
 	link := store.Link{
